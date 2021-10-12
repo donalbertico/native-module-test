@@ -1,5 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
+import * as firebase from 'firebase'
+import 'firebase/firestore'
 import * as Linking from 'expo-linking';
 import {encode as btoa} from 'base-64';
 import SpotifyWebApi from 'spotify-web-api-js';
@@ -8,6 +10,15 @@ import {useAuthRequest, makeRedirectUri, getRedirectUrl} from 'expo-auth-session
 import Modulin from './NativeModule'
 
 export default function App() {
+ const firebaseC = {
+  apiKey: "AIzaSyDU-AvUc5z3SgMabD0dgTXIjSdjy7sTkrk",
+  authDomain: "airize-development.firebaseapp.com",
+  projectId: "airize-development",
+  storageBucket: "airize-development.appspot.com",
+  messagingSenderId: "420079497855",
+  appId: "1:420079497855:web:6ab07042945c415a14454a",
+  measurementId: "G-JRQ8TDGJ2N"
+}
   const { DEFAULT_EVENT_NAME } = Modulin.getConstants();
   const discovery = {
     authorizationEndpoint : "https://accounts.spotify.com/authorize",
@@ -33,8 +44,6 @@ export default function App() {
 
   React.useEffect(()=>{
     const eventEmitter = new NativeEventEmitter(Modulin)
-    eventEmitter.addListener('ploploEvent',(e)=>{
-    })
   },[])
 
 
@@ -59,6 +68,21 @@ export default function App() {
       position_ms: 0
     })
   }
+
+  async function bringSecret(){
+    const uri = await firebase.storage().ref('scr/spotify.json').getDownloadURL();
+    console.log(uri);
+    let rs = await fetch(uri);
+    let json = await rs.json()
+    console.log(json);
+  }
+
+  React.useEffect(()=>{
+    if(authRequest){
+      firebase.initializeApp(firebaseC)
+      bringSecret()
+    }
+  },[authRequest])
 
   React.useEffect(()=>{
     console.log(device);
